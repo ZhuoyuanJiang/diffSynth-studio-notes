@@ -34,11 +34,15 @@ class RenderMe360S2VDataset(torch.utils.data.Dataset):
         self.cameras = cameras or ["cam_28", "cam_37", "cam_49", "cam_54"]
         self.repeat = repeat
 
-        # Set torchaudio backend for MP3 support
+        # Set torchaudio backend to avoid torchcodec dependency
+        # Use soundfile backend which works with most audio formats
         try:
-            torchaudio.set_audio_backend("sox_io")
+            torchaudio.set_audio_backend("soundfile")
         except Exception:
-            pass  # Fall back to default backend
+            try:
+                torchaudio.set_audio_backend("sox_io")
+            except Exception:
+                pass  # Fall back to default backend
 
         print(f"[RenderMe360Dataset] Loaded {len(self.df)} samples × {repeat} repeats = {len(self)} total")
 
@@ -159,7 +163,7 @@ class RenderMe360S2VDataset(torch.utils.data.Dataset):
 
     def _load_audio_segment(self, audio_path, start_frame_30fps, num_frames_16fps, target_sr=16000):
         """
-        Load audio segment using torchaudio with frame-accurate offset.
+        Load audio segment using librosa (more reliable than torchaudio).
 
         Args:
             audio_path: Path to audio.mp3
@@ -170,36 +174,24 @@ class RenderMe360S2VDataset(torch.utils.data.Dataset):
         Returns:
             Tuple of (waveform numpy array float32, sample_rate)
         """
+        import librosa
+
         # Calculate time range
         start_time_s = start_frame_30fps / 30.0
         duration_s = (num_frames_16fps - 1) / 16.0  # 80/16 = 5.0 seconds
 
-        # Get source sample rate
-        info = torchaudio.info(str(audio_path))
-        src_sr = info.sample_rate
-
-        # Calculate exact sample window in source rate
-        start_sample = int(round(start_time_s * src_sr))
-        num_samples = int(round(duration_s * src_sr))
-
-        # Load segment (frame-accurate with torchaudio)
-        waveform, sr = torchaudio.load(
+        # Load audio segment with librosa (automatically resamples to target_sr)
+        waveform, sr = librosa.load(
             str(audio_path),
-            frame_offset=start_sample,
-            num_frames=num_samples
+            sr=target_sr,
+            offset=start_time_s,
+            duration=duration_s,
+            mono=True
         )
-
-        # Resample if needed
-        if sr != target_sr:
-            waveform = torchaudio.functional.resample(waveform, sr, target_sr)
-
-        # Convert to mono
-        if waveform.shape[0] > 1:
-            waveform = waveform.mean(dim=0, keepdim=True)
 
         # Enforce EXACTLY 80,000 samples (crop or pad)
         target_samples = 80_000
-        waveform = waveform.squeeze(0).numpy().astype('float32')
+        waveform = waveform.astype('float32')
 
         if waveform.shape[0] < target_samples:
             # Pad with zeros

@@ -198,10 +198,10 @@ if __name__ == "__main__":
     )
 
     # Launch training
+    # Note: Default collate_fn=lambda x: x[0] in launch_training_task works fine for batch_size=1
     launch_training_task(
         dataset,
         model,
         model_logger,
-        args=args,
-        collate_fn=passthrough_collate  # NEW: Required for PIL Images + numpy arrays
+        args=args
     )
