@@ -1,8 +1,34 @@
 # Training Plan Rationale: Decision-Making Process for S2V Multi-View Training
 
 **Date**: 2025-10-22
+**Last Updated**: 2025-10-22 (Changed to single→multi after mentor confirmation)
 
 This document captures the questions, options, and reasoning that led to our final training plan documented in `Training_Plan_S2V_4view.md`.
+
+---
+
+## FINAL DECISION (After Mentor Confirmation)
+
+**Confirmed Goal**: Single-view image → Multi-view video (2×2 grid)
+- **Input**: Single frontal face image (cam_54) + audio
+- **Output**: Animated 2×2 grid video (4 camera angles)
+- **Approach**: Approach A (single→multi, novel view synthesis + animation)
+- **Input camera**: Always cam_54 (frontal hemisphere)
+- **Training samples**: ~1,890 (one per clip, cam_54 only)
+- **Resolution**: 448×832 (224×416 per camera) - **Original S2V resolution** ✅
+- **Timeline**: Start training by end of tomorrow (2025-10-23)
+
+This is the **most ambitious approach** but aligns with the end-user vision: users upload one photo + audio, get multi-view talking video.
+
+**Key Decision - Use Original S2V Resolution (448×832)**:
+- ✅ **Non-invasive fine-tuning**: Matches pre-trained model exactly
+- ✅ **Lower risk**: Position encodings, spatial features match
+- ✅ **Faster training**: 56% fewer pixels than 560×1040 alternative
+- ✅ **Better for deadline**: Minimizes variables
+
+**Alternatives documented for future**:
+- Higher resolution (560×1040): +56% pixels, better quality but more invasive
+- Use all 4 cameras as input (data augmentation): ~7,560 samples, more robust but 4× slower training
 
 ---
 
@@ -61,10 +87,11 @@ If we want users to upload **single-view images** at inference, we have TWO opti
 - Inference works because our model always receives 2×2 grid input ✅
 - Advantage: Separates concerns, each model does one job
 
-**Our Choice**: We chose to train multi→multi (2×2 grid input), which means:
-- Our model will always expect 2×2 grid input
-- If we want single-view user input in the future, we'll need Stage 1 view synthesis separately (Option B)
-- This is safer and more modular than trying to train everything end-to-end (Option A)
+**Our Choice (Phase 1)**: Train single→multi (Approach A, Option A above)
+- Training: **Single-view image (cam_54) + audio → 2×2 grid video**
+- Inference: **Single-view image + audio → 2×2 grid video** ✅ Matches!
+- Directly achieves end-user vision (upload one photo, get multi-view video)
+- We keep **multi→multi (Option B)** documented as **fallback** if Approach A quality is insufficient
 
 ---
 
@@ -116,25 +143,26 @@ If we want users to upload **single-view images** at inference, we have TWO opti
 ### What If Users Want Different Output Resolution?
 
 **The correct approach**:
-1. ✅ Inference at training resolution (560×1040)
+1. ✅ Inference at your training resolution (e.g., 448×832 for Phase 1)
 2. ✅ Post-process: Upscale or downscale the output video
 3. ❌ Do NOT change inference resolution directly
 
 **Example workflow**:
 ```
 User wants 1080p output
-→ Infer at 560×1040 (training resolution)
+→ Infer at 448×832 (training resolution for Phase 1)
 → Upscale output video to 1920×1080 using video upscaler
 → Deliver 1080p result
 ```
 
-### Our Plan:
+### Our Plan (Phase 1):
 
-**We will train and infer at IDENTICAL resolution: 560×1040**
-- Training data: 560×1040 grid videos
-- Inference input: 560×1040 grid images
-- Inference output: 560×1040 grid videos
+**We will train and infer at IDENTICAL resolution: 448×832** (original S2V resolution)
+- Training data: 448×832 grid videos (224×416 per camera)
+- Inference input: 448×832 grid images
+- Inference output: 448×832 grid videos
 - ✅ Perfect match throughout!
+- **Phase 2 (optional)**: Raise to 560×1040 after 448×832 approach is validated
 
 If we later want to support different output resolutions, we'll use post-processing upscaling (e.g., ESRGAN, Real-ESRGAN) rather than changing inference resolution.
 
@@ -228,12 +256,13 @@ To clarify what "Option 2: Improve single-view quality via multi-view learning" 
 - **Trade-off**: Marginal improvement, playing it very safe
 - **VRAM estimate**: ~26-34GB per GPU with gradient checkpointing
 
-**Option 3: 280×520 per camera → 560×1040 total** ✅ **CHOSEN**
+**Option 3: 280×520 per camera → 560×1040 total**
 - 56% more pixels than standard S2V
 - **Why**: Noticeable quality improvement, well within modern GPU capacity
 - **Trade-off**: Higher VRAM usage, but still safe with sufficient GPUs
 - **VRAM estimate**: ~32-40GB per GPU with gradient checkpointing
 - **Quality benefit**: 280×520 per camera provides much better face detail
+- **Note**: This option was considered but NOT chosen for Phase 1 (documented for future use)
 
 **Option 4: 320×640 per camera → 640×1280 total**
 - 120% more pixels than standard S2V
@@ -259,9 +288,9 @@ Our options compared to this baseline:
 | Option | Resolution | Total Pixels | vs Standard S2V |
 |--------|------------|--------------|-----------------|
 | Standard S2V | 448×832 | 372,736 | 100% (baseline) |
-| **Our Option 1** | 448×832 | 372,736 | 100% (same) |
+| **Our Option 1** ✅ | 448×832 | 372,736 | 100% (same) |
 | **Our Option 2** | 480×832 | 399,360 | 107% (+7%) |
-| **Our Option 3** ✅ | 560×1040 | 582,400 | **156% (+56%)** |
+| **Our Option 3** 📝 | 560×1040 | 582,400 | **156% (+56%)** |
 | **Our Option 4** | 640×1280 | 819,200 | 220% (+120%) |
 
 **What "56% more pixels" means**:
@@ -272,7 +301,8 @@ Our options compared to this baseline:
 This means significantly better quality for face details while staying within safe VRAM limits.
 
 ### Decision Impact:
-✅ **Chose Option 3** (after confirming GPU capacity in Q3) → 560×1040 total resolution
+✅ **Chose Option 1** (448×832 original S2V resolution) for Phase 1 → Non-invasive fine-tuning, minimizes variables
+📝 **Option 3** (560×1040) documented for Phase 2 after validating 448×832 approach
 
 ---
 
@@ -375,20 +405,21 @@ I wanted to know if you prioritize:
   - Combining it with temporal animation is cutting-edge research
 - **What it requires**: Model learns 3D structure of faces, can hallucinate unseen angles with temporal consistency
 
-**Option 2: Multi-view image (2×2 grid) → Animated multi-view video** ✅ **CHOSEN as Phase 1**
+**Option 2: Multi-view image (2×2 grid) → Animated multi-view video**
 - Input: 2×2 grid of 4 views (all 4 camera angles)
 - Output: Animated 2×2 grid video
 - **Why this is safer**: Model only learns animation with spatial consistency, not view synthesis
 - **Advantage**: More reliable, validates your dataset works, separates concerns
 - **Limitation**: Users need 4-view input (but can be generated separately in future)
 - **What it requires**: Model learns temporal consistency across 4 synchronized views
+- **Status**: Documented as **fallback** if Option 1 (single→multi) doesn't achieve sufficient quality
 
 ### Clarification from User:
 > "I want users to upload any frontal face photo and audio, then generate multi-view video"
 
-This revealed the **end goal is Option 1**, but we decided to:
-1. **Phase 1 (now)**: Build Option 2 (multi→multi) to validate approach
-2. **Phase 2 (future)**: Either train Option 1 end-to-end OR add separate view synthesis step
+This revealed the **end goal is Option 1 (single→multi)**, and we decided to:
+1. **Phase 1 (now)**: Pursue Option 1 (single→multi) directly - ambitious but aligned with end goal
+2. **Fallback**: If Option 1 quality is insufficient, pivot to Option 2 (multi→multi) to validate data pipeline separately
 
 ### Rationale for Asking:
 This is THE MOST CRITICAL architectural question because:
@@ -409,14 +440,14 @@ This is THE MOST CRITICAL architectural question because:
 - Option 2 = Learning to play piano with sheet music already provided
 
 ### Decision Impact:
-✅ **Chose Option 2 (multi→multi) for Phase 1** → De-risk, validate dataset, build foundation
-📝 **Document Option 1 for Phase 2** → Future work after Phase 1 succeeds
+✅ **Chose Option 1 (single→multi) for Phase 1** → Matches end-user vision (one photo + audio → multi-view video)
+📝 **Option 2 (multi→multi)** kept as **fallback** if Approach A stalls or quality is insufficient
 
 ---
 
 ## Q6: If single-view input, which camera should be the input?
 
-⚠️ **NOTE**: This question is **NOT APPLICABLE** to our chosen approach (multi-view → multi-view). We're documenting it here for future reference if we attempt single-view → multi-view training (Approach A / Phase 2).
+⚠️ **NOTE**: This question **IS applicable** to our chosen approach (single→multi). For Phase 1 we fix the input camera to **cam_54** (frontal hemisphere view).
 
 ### Options Presented:
 
@@ -443,8 +474,8 @@ If training single→multi, I needed to know:
 - OR **Variable input angle**: Harder to learn, more flexible (any angle → multi-view)
 
 ### Decision Impact:
-❌ **Question became irrelevant** after choosing multi→multi approach in Q5
-📝 **Documented for Phase 2** when attempting single→multi
+✅ **Chose cam_54 as fixed input view for Phase 1** → Matches typical frontal face photos users upload
+📝 **Can extend to Option 3 (any camera) in Phase 2** → For more robust model that handles any input angle
 
 ---
 
@@ -460,12 +491,13 @@ If training single→multi, I needed to know:
 - **Time estimate if it works**: 2-3 weeks
 - **Time estimate if it fails**: 1-2 weeks wasted before pivoting
 
-**Approach C: Multi-view → Multi-view (Safer, Recommended)** ✅ **CHOSEN**
+**Approach C: Multi-view → Multi-view (Safer, Recommended)**
 - Input 2×2 grid, output animated 2×2 grid
 - **Why I recommended it**: Separates concerns, validates dataset first
 - **Advantage**: If this fails → know dataset/animation has issues. If Approach A fails → don't know if issue is data, view synthesis, or animation
 - **Foundation**: Once working, can add view synthesis (either end-to-end or separate model)
 - **Time estimate**: 1-2 weeks to working baseline
+- **Status**: Documented as **fallback option** if Approach A doesn't achieve sufficient quality
 
 **Approach: Try A, fallback to C if needed**
 - Attempt ambitious first, pivot if needed
@@ -494,8 +526,9 @@ Classic engineering risk management decision:
 I wanted to know your **risk tolerance** and **timeline pressure**.
 
 ### Decision Impact:
-✅ **Chose Approach C (multi→multi first)** → Incremental, de-risked, build foundation
-📝 **Document Approach A for future** → Attempt after C succeeds
+✅ **Chose Approach A (single→multi)** → Ambitious, aligned with mentor confirmation and end-user vision
+⚠️ **High risk acknowledged** → Novel view synthesis + animation is challenging, but directly achieves goal
+📝 **Approach C (multi→multi)** documented as fallback → Use if Approach A quality is insufficient
 
 ---
 
@@ -509,13 +542,14 @@ I wanted to know your **risk tolerance** and **timeline pressure**.
 - **When to choose**: First time training, want guaranteed success
 - **Face detail**: Each camera is 240×416 - acceptable but not great
 
-**Option 3: 280×520 → 560×1040 (Recommended)** ✅ **CHOSEN**
+**Option 3: 280×520 → 560×1040 (Recommended)**
 - 56% more pixels than standard S2V
 - **Why**: Sweet spot for 4-8×48GB GPUs, noticeable quality improvement
 - **Math**: 560×1040×81 frames = ~47M pixels per sample
   - With gradient checkpointing: ~32-40GB per GPU
   - With 48GB GPUs: Comfortable margin
 - **Face detail**: Each camera is 280×520 - much better for facial details
+- **Status**: Documented for Phase 2 after 448×832 is validated
 
 **Option 4: 320×640 → 640×1280 (Ambitious)**
 - 120% more pixels than standard S2V
@@ -542,7 +576,8 @@ Wanted you to choose the **quality vs speed vs safety** trade-off:
 - **Aggressive** (Option 4): Best quality, higher risk
 
 ### Decision Impact:
-✅ **Chose Option 3 (560×1040)** → Good quality with comfortable VRAM margin
+✅ **Chose Option 1 (448×832) for Phase 1** → Non-invasive, fastest to validate
+📝 **Option 3 (560×1040)** is Phase 2 after 448×832 is validated
 
 ---
 
@@ -608,26 +643,28 @@ Based on all decisions above:
 
 | Aspect | Decision | Rationale |
 |--------|----------|-----------|
-| **Goal** | Multi-view output (2×2 grid) | Novel capability, 3D-aware generation |
-| **Approach** | Multi→multi (Phase 1) | De-risk, validate dataset, foundation |
-| **Resolution** | 280×520 per cam (560×1040 total) | Sweet spot for 48GB GPUs, good quality |
-| **GPUs** | 4-8 × RTX 6000 Ada (48GB) | Sufficient for chosen resolution |
+| **Goal** | Single→Multi-view (2×2 grid from 1 image) | Aligned with mentor confirmation, end-user vision |
+| **Approach** | Single→multi (Approach A) | Ambitious but directly achieves goal, fallback to multi→multi if needed |
+| **Resolution** | 224×416 per cam (448×832 total) | Original S2V resolution, non-invasive fine-tuning, minimizes variables |
+| **GPUs** | 4-8 × RTX 6000 Ada (48GB) | Sufficient for 448×832, comfortable margin |
 | **Pose guidance** | Skip initially | Simplify first iteration |
 | **Data loading** | On-the-fly | Save storage, fast iteration |
-| **Training mode** | LoRA first, then full | Standard progression |
+| **Training mode** | LoRA first, then full if needed | Faster feedback, validate approach quickly |
 
 ---
 
-## Alternative Paths Not Taken (Documented for Future)
+## Alternative Paths (Documented for Future or Fallback)
 
-### Path 1: Single→Multi (Approach A)
-- **When to attempt**: After multi→multi succeeds
-- **How**: Either train end-to-end or add separate view synthesis model
-- **References**: Zero-1-to-3, SyncDreamer for view synthesis component
+### Path 1: Multi→Multi (Approach C) - FALLBACK
+- **When to use**: If single→multi quality is insufficient or training fails
+- **How**: Input 2×2 grid → Output animated 2×2 grid
+- **Advantage**: De-risks view synthesis problem, validates data pipeline separately
+- **Timeline**: 1-2 days to working baseline if fallback needed
 
-### Path 2: Higher Resolution (640×1280)
-- **When to attempt**: If 560×1040 results look good but want more detail
-- **Requirement**: Monitor VRAM carefully, may need to reduce batch size
+### Path 2: Higher Resolution (560×1040 or 640×1280)
+- **When to attempt**: After 448×832 succeeds and quality is validated
+- **Options**: 560×1040 (+56% pixels) or 640×1280 (+120% pixels)
+- **Requirement**: Monitor VRAM carefully, may need to reduce batch size or switch to full GPUs
 
 ### Path 3: Add Pose Guidance
 - **When to attempt**: After initial training, if head motion looks unrealistic
@@ -641,7 +678,7 @@ Based on all decisions above:
 
 ## Key Lessons from Decision Process
 
-1. **Start simple, iterate**: Multi→multi before single→multi
+1. **Start simple, iterate**: Single→multi first (with multi→multi as fallback)
 2. **Validate dataset first**: Don't combine multiple unknowns
 3. **Match resolution to GPU capacity**: Don't guess, calculate
 4. **Prioritize iteration speed**: On-the-fly > preprocessing for experimentation
@@ -661,7 +698,7 @@ Known: Multi-view 2×2 grid output
 Unknown: What quality level?
     ↓ [Q2: Resolution - blocked]
     ↓ [Q3: GPU capacity]
-Known: 4-8 × 48GB GPUs → Can do 560×1040
+Known: 4-8 × 48GB GPUs → 448×832 for Phase 1 (non-invasive), can do 560×1040 in Phase 2
 
 Unknown: How complex should data be?
     ↓ [Q4: Pose guidance]
@@ -670,7 +707,7 @@ Known: Skip pose initially
 Unknown: What's the input/output relationship?
     ↓ [Q5: Input type]
     ↓ [Q7: Approach choice]
-Known: Multi→multi first, single→multi later
+Known: Single→multi now, multi→multi fallback if needed
 
 Unknown: How to prepare data?
     ↓ [User suggestion: On-the-fly]
@@ -678,7 +715,7 @@ Known: On-the-fly loading, preprocessing as fallback
 
 Unknown: Final resolution choice?
     ↓ [Q8: Resolution decision]
-Known: 560×1040 (Option 3)
+Known: 448×832 (Option 1) for Phase 1; 560×1040 (Option 3) for Phase 2 if needed
 ```
 
 **Total unknowns eliminated**: 8 major decisions
