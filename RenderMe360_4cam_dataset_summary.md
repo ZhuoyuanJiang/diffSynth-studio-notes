@@ -1,7 +1,7 @@
 # RenderMe360 4-Camera Dataset Summary
 
 **Generated:** 2025-10-22
-**Location:** `/ssd4/zhuoyuan/renderme360_4cam/`
+**Location:** `/ssd2/zhuoyuan/renderme360_4cam/`
 
 ## Dataset Overview
 
