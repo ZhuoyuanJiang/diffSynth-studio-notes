@@ -1,0 +1,92 @@
+/home/zhuoyuan/miniconda3/envs/diffsynth-s2v/lib/python3.10/site-packages/torch/cuda/__init__.py:58: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+/home/zhuoyuan/miniconda3/envs/diffsynth-s2v/lib/python3.10/site-packages/librosa/util/files.py:10: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import resource_filename
+/home/zhuoyuan/miniconda3/envs/diffsynth-s2v/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+2025-10-26 19:48:44,078 - modelscope - INFO - Target directory already exists, skipping creation.
+2025-10-26 19:48:46,348 - modelscope - INFO - Fetching dataset repo file list...
+/home/zhuoyuan/miniconda3/envs/diffsynth-s2v/lib/python3.10/site-packages/librosa/util/decorators.py:88: UserWarning: PySoundFile failed. Trying audioread instead.
+  return f(*args, **kwargs)
+================================================================================
+Testing Wan2.2-S2V-14B Inference with Local Models
+================================================================================
+Local model path: /ssd1/zhuoyuan/diffsynth_models/models
+
+Loading models...
+To avoid repeatedly downloading model files, (Wan-AI/Wan2.2-S2V-14B, models_t5_umt5-xxl-enc-bf16.pth) is redirected to (Wan-AI/Wan2.1-T2V-1.3B, models_t5_umt5-xxl-enc-bf16.pth). You can use `redirect_common_files=False` to disable file redirection.
+To avoid repeatedly downloading model files, (Wan-AI/Wan2.2-S2V-14B, Wan2.1_VAE.pth) is redirected to (Wan-AI/Wan2.1-T2V-1.3B, Wan2.1_VAE.pth). You can use `redirect_common_files=False` to disable file redirection.
+Loading models from: ['/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00004-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00002-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00003-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00001-of-00004.safetensors']
+    model_name: wan_video_dit model_class: WanS2VModel
+        This model is initialized with extra kwargs: {'dim': 5120, 'in_dim': 16, 'ffn_dim': 13824, 'out_dim': 16, 'text_dim': 4096, 'freq_dim': 256, 'eps': 1e-06, 'patch_size': (1, 2, 2), 'num_heads': 40, 'num_layers': 40, 'cond_dim': 16, 'audio_dim': 1024, 'num_audio_token': 4}
+    The following models are loaded: ['wan_video_dit'].
+Loading models from: /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/wav2vec2-large-xlsr-53-english/model.safetensors
+    model_name: wans2v_audio_encoder model_class: WanS2VAudioEncoder
+    The following models are loaded: ['wans2v_audio_encoder'].
+Loading models from: /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth
+    model_name: wan_video_text_encoder model_class: WanTextEncoder
+    The following models are loaded: ['wan_video_text_encoder'].
+Loading models from: /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth
+    model_name: wan_video_vae model_class: WanVideoVAE
+    The following models are loaded: ['wan_video_vae'].
+Using wan_video_text_encoder from /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth.
+Using wan_video_dit from ['/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00004-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00002-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00003-of-00004.safetensors', '/ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/diffusion_pytorch_model-00001-of-00004.safetensors'].
+Using wan_video_vae from /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth.
+No wan_video_image_encoder models available.
+No wan_video_motion_controller models available.
+No wan_video_vace models available.
+Using wans2v_audio_encoder from /ssd1/zhuoyuan/diffsynth_models/models/Wan-AI/Wan2.2-S2V-14B/wav2vec2-large-xlsr-53-english/model.safetensors.
+No wan_video_animate_adapter models available.
+Downloading Model from https://www.modelscope.cn to directory: /home/zhuoyuan/projects/DiffSynth-Studio/models/Wan-AI/Wan2.1-T2V-1.3B
+✓ Models loaded successfully!
+
+Enabling VRAM management (layer-wise offloading)...
+✓ VRAM management enabled!
+
+Downloading example data...
+Downloading Dataset to directory: /home/zhuoyuan/projects/DiffSynth-Studio/data/example_video_dataset
+✓ Example data ready!
+
+================================================================================
+Running Speech-to-Video Inference
+================================================================================
+Prompt: a person is singing
+Num frames: 81
+Resolution: 448x832
+Inference steps: 40
+
+VAE encoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE encoding:  11%|█         | 1/9 [00:00<00:04,  1.92it/s]VAE encoding:  22%|██▏       | 2/9 [00:01<00:03,  1.99it/s]VAE encoding:  33%|███▎      | 3/9 [00:01<00:02,  2.02it/s]VAE encoding:  44%|████▍     | 4/9 [00:01<00:02,  2.03it/s]VAE encoding:  56%|█████▌    | 5/9 [00:02<00:01,  2.03it/s]VAE encoding:  67%|██████▋   | 6/9 [00:02<00:01,  2.04it/s]VAE encoding:  78%|███████▊  | 7/9 [00:03<00:00,  2.14it/s]VAE encoding:  89%|████████▉ | 8/9 [00:03<00:00,  2.22it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  2.28it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  2.14it/s]
+VAE encoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE encoding: 100%|██████████| 9/9 [00:00<00:00, 124.75it/s]
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:26<17:05, 26.30s/it]  5%|▌         | 2/40 [00:50<16:01, 25.30s/it]  8%|▊         | 3/40 [01:16<15:33, 25.23s/it] 10%|█         | 4/40 [01:41<15:10, 25.28s/it] 12%|█▎        | 5/40 [02:06<14:47, 25.35s/it] 15%|█▌        | 6/40 [02:32<14:24, 25.44s/it] 18%|█▊        | 7/40 [02:58<14:01, 25.51s/it] 20%|██        | 8/40 [03:23<13:37, 25.55s/it] 22%|██▎       | 9/40 [03:49<13:14, 25.61s/it] 25%|██▌       | 10/40 [04:15<12:49, 25.64s/it] 28%|██▊       | 11/40 [04:40<12:23, 25.65s/it] 30%|███       | 12/40 [05:06<11:58, 25.65s/it] 32%|███▎      | 13/40 [05:32<11:32, 25.66s/it] 35%|███▌      | 14/40 [05:57<11:07, 25.67s/it] 38%|███▊      | 15/40 [06:23<10:41, 25.65s/it] 40%|████      | 16/40 [06:49<10:15, 25.66s/it] 42%|████▎     | 17/40 [07:14<09:50, 25.66s/it] 45%|████▌     | 18/40 [07:40<09:24, 25.66s/it] 48%|████▊     | 19/40 [08:06<08:59, 25.67s/it] 50%|█████     | 20/40 [08:31<08:33, 25.68s/it] 52%|█████▎    | 21/40 [08:57<08:07, 25.68s/it] 55%|█████▌    | 22/40 [09:23<07:41, 25.67s/it] 57%|█████▊    | 23/40 [09:48<07:16, 25.66s/it] 60%|██████    | 24/40 [10:14<06:50, 25.66s/it] 62%|██████▎   | 25/40 [10:40<06:25, 25.67s/it] 65%|██████▌   | 26/40 [11:05<05:59, 25.67s/it] 68%|██████▊   | 27/40 [11:31<05:33, 25.67s/it] 70%|███████   | 28/40 [11:57<05:07, 25.66s/it] 72%|███████▎  | 29/40 [12:22<04:42, 25.65s/it] 75%|███████▌  | 30/40 [12:48<04:16, 25.63s/it] 78%|███████▊  | 31/40 [13:14<03:50, 25.63s/it] 80%|████████  | 32/40 [13:39<03:25, 25.64s/it] 82%|████████▎ | 33/40 [14:05<02:59, 25.62s/it] 85%|████████▌ | 34/40 [14:30<02:33, 25.61s/it] 88%|████████▊ | 35/40 [14:56<02:08, 25.60s/it] 90%|█████████ | 36/40 [15:22<01:42, 25.60s/it] 92%|█████████▎| 37/40 [15:47<01:16, 25.60s/it] 95%|█████████▌| 38/40 [16:13<00:51, 25.60s/it] 98%|█████████▊| 39/40 [16:38<00:25, 25.59s/it]100%|██████████| 40/40 [17:04<00:00, 25.58s/it]100%|██████████| 40/40 [17:04<00:00, 25.61s/it]
+VAE decoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE decoding:  11%|█         | 1/9 [00:01<00:10,  1.30s/it]VAE decoding:  22%|██▏       | 2/9 [00:02<00:08,  1.16s/it]VAE decoding:  33%|███▎      | 3/9 [00:03<00:06,  1.11s/it]VAE decoding:  44%|████▍     | 4/9 [00:04<00:05,  1.09s/it]VAE decoding:  56%|█████▌    | 5/9 [00:05<00:04,  1.08s/it]VAE decoding:  67%|██████▋   | 6/9 [00:06<00:03,  1.08s/it]VAE decoding:  78%|███████▊  | 7/9 [00:07<00:02,  1.02s/it]VAE decoding:  89%|████████▉ | 8/9 [00:08<00:00,  1.02it/s]VAE decoding: 100%|██████████| 9/9 [00:09<00:00,  1.05it/s]VAE decoding: 100%|██████████| 9/9 [00:09<00:00,  1.03s/it]
+Saving video:   0%|          | 0/80 [00:00<?, ?it/s]huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Saving video:   1%|▏         | 1/80 [00:01<02:27,  1.87s/it]Saving video:  76%|███████▋  | 61/80 [00:01<00:00, 43.00it/s]Saving video: 100%|██████████| 80/80 [00:02<00:00, 39.52it/s]
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Merge completed, saved to test_video_with_audio.mp4
+✓ Video saved to: test_video_with_audio.mp4
+
+================================================================================
+Running Speech-to-Video with Pose Inference
+================================================================================
+VAE encoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE encoding:  11%|█         | 1/9 [00:00<00:03,  2.00it/s]VAE encoding:  22%|██▏       | 2/9 [00:01<00:03,  1.99it/s]VAE encoding:  33%|███▎      | 3/9 [00:01<00:03,  1.99it/s]VAE encoding:  44%|████▍     | 4/9 [00:02<00:02,  1.98it/s]VAE encoding:  56%|█████▌    | 5/9 [00:02<00:02,  1.97it/s]VAE encoding:  67%|██████▋   | 6/9 [00:03<00:01,  1.97it/s]VAE encoding:  78%|███████▊  | 7/9 [00:03<00:00,  2.08it/s]VAE encoding:  89%|████████▉ | 8/9 [00:03<00:00,  2.15it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  2.21it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  2.08it/s]
+VAE encoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE encoding:  11%|█         | 1/9 [00:00<00:04,  1.79it/s]VAE encoding:  22%|██▏       | 2/9 [00:01<00:03,  1.79it/s]VAE encoding:  33%|███▎      | 3/9 [00:01<00:03,  1.79it/s]VAE encoding:  44%|████▍     | 4/9 [00:02<00:02,  1.78it/s]VAE encoding:  56%|█████▌    | 5/9 [00:02<00:02,  1.77it/s]VAE encoding:  67%|██████▋   | 6/9 [00:03<00:01,  1.77it/s]VAE encoding:  78%|███████▊  | 7/9 [00:03<00:01,  1.86it/s]VAE encoding:  89%|████████▉ | 8/9 [00:04<00:00,  1.92it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  1.97it/s]VAE encoding: 100%|██████████| 9/9 [00:04<00:00,  1.87it/s]
+VAE encoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE encoding: 100%|██████████| 9/9 [00:00<00:00, 119.50it/s]
+  0%|          | 0/40 [00:00<?, ?it/s]  2%|▎         | 1/40 [00:33<21:30, 33.09s/it]  5%|▌         | 2/40 [00:58<18:03, 28.51s/it]  8%|▊         | 3/40 [01:23<16:44, 27.15s/it] 10%|█         | 4/40 [01:49<15:55, 26.54s/it] 12%|█▎        | 5/40 [02:15<15:17, 26.22s/it] 15%|█▌        | 6/40 [02:40<14:45, 26.03s/it] 18%|█▊        | 7/40 [03:06<14:15, 25.92s/it] 20%|██        | 8/40 [03:32<13:46, 25.84s/it] 22%|██▎       | 9/40 [03:57<13:19, 25.79s/it] 25%|██▌       | 10/40 [04:23<12:52, 25.76s/it] 28%|██▊       | 11/40 [04:49<12:26, 25.73s/it] 30%|███       | 12/40 [05:14<12:00, 25.72s/it] 32%|███▎      | 13/40 [05:40<11:34, 25.72s/it] 35%|███▌      | 14/40 [06:06<11:08, 25.71s/it] 38%|███▊      | 15/40 [06:32<10:42, 25.71s/it] 40%|████      | 16/40 [06:57<10:16, 25.69s/it] 42%|████▎     | 17/40 [07:23<09:50, 25.68s/it] 45%|████▌     | 18/40 [07:48<09:24, 25.67s/it] 48%|████▊     | 19/40 [08:14<08:59, 25.67s/it] 50%|█████     | 20/40 [08:40<08:33, 25.68s/it] 52%|█████▎    | 21/40 [09:06<08:07, 25.67s/it] 55%|█████▌    | 22/40 [09:31<07:42, 25.69s/it] 57%|█████▊    | 23/40 [09:57<07:16, 25.69s/it] 60%|██████    | 24/40 [10:23<06:51, 25.69s/it] 62%|██████▎   | 25/40 [10:48<06:25, 25.70s/it] 65%|██████▌   | 26/40 [11:14<05:59, 25.68s/it] 68%|██████▊   | 27/40 [11:40<05:33, 25.67s/it] 70%|███████   | 28/40 [12:05<05:07, 25.67s/it] 72%|███████▎  | 29/40 [12:31<04:42, 25.67s/it] 75%|███████▌  | 30/40 [12:57<04:16, 25.66s/it] 78%|███████▊  | 31/40 [13:22<03:50, 25.64s/it] 80%|████████  | 32/40 [13:48<03:24, 25.62s/it] 82%|████████▎ | 33/40 [14:13<02:59, 25.60s/it] 85%|████████▌ | 34/40 [14:39<02:33, 25.60s/it] 88%|████████▊ | 35/40 [15:05<02:07, 25.60s/it] 90%|█████████ | 36/40 [15:30<01:42, 25.60s/it] 92%|█████████▎| 37/40 [15:56<01:16, 25.61s/it] 95%|█████████▌| 38/40 [16:21<00:51, 25.60s/it] 98%|█████████▊| 39/40 [16:47<00:25, 25.60s/it]100%|██████████| 40/40 [17:13<00:00, 25.59s/it]100%|██████████| 40/40 [17:13<00:00, 25.83s/it]
+VAE decoding:   0%|          | 0/9 [00:00<?, ?it/s]VAE decoding:  11%|█         | 1/9 [00:01<00:08,  1.05s/it]VAE decoding:  22%|██▏       | 2/9 [00:02<00:07,  1.04s/it]VAE decoding:  33%|███▎      | 3/9 [00:03<00:06,  1.03s/it]VAE decoding:  44%|████▍     | 4/9 [00:04<00:05,  1.03s/it]VAE decoding:  56%|█████▌    | 5/9 [00:05<00:04,  1.03s/it]VAE decoding:  67%|██████▋   | 6/9 [00:06<00:03,  1.03s/it]VAE decoding:  78%|███████▊  | 7/9 [00:07<00:01,  1.02it/s]VAE decoding:  89%|████████▉ | 8/9 [00:07<00:00,  1.05it/s]VAE decoding: 100%|██████████| 9/9 [00:08<00:00,  1.08it/s]VAE decoding: 100%|██████████| 9/9 [00:08<00:00,  1.02it/s]
+Saving video:   0%|          | 0/80 [00:00<?, ?it/s]huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Saving video:   1%|▏         | 1/80 [00:01<01:33,  1.18s/it]Saving video:  89%|████████▉ | 71/80 [00:01<00:00, 76.12it/s]Saving video: 100%|██████████| 80/80 [00:01<00:00, 60.15it/s]
+Merge completed, saved to test_video_pose_with_audio.mp4
+✓ Video with pose saved to: test_video_pose_with_audio.mp4
+
+================================================================================
+✓ ALL TESTS PASSED! Inference pipeline working correctly!
+================================================================================
