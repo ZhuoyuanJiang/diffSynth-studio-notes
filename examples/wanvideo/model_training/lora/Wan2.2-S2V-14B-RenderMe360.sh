@@ -10,6 +10,10 @@
 # Activate conda environment
 source ~/miniconda3/bin/activate diffsynth-s2v
 
+# Set cache directories to /ssd2 to avoid home directory quota (100GB limit)
+export TRITON_CACHE_DIR=/ssd2/zhuoyuan/deepspeed_cache
+export DEEPSPEED_CACHE_DIR=/ssd2/zhuoyuan/deepspeed_cache
+
 # Verify HuggingFace cache location
 echo "HF_HOME: ${HF_HOME:-Not set}"
 if [ -z "$HF_HOME" ]; then
