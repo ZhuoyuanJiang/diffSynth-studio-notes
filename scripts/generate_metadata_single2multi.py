@@ -12,7 +12,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def count_frames(images_dir, camera="cam_54"):
+def count_frames(images_dir, camera="cam_28"):
     """Count frames in a camera directory."""
     cam_dir = images_dir / camera
     if not cam_dir.exists():
@@ -25,7 +25,7 @@ def generate_metadata(
     output_csv=None,
     num_frames=81,
     stride=40,
-    reference_camera="cam_54"
+    reference_camera="cam_28"
 ):
     """
     Generate metadata CSV for RenderMe360 S2V training.
@@ -91,7 +91,7 @@ def generate_metadata(
                     "start_frame_30fps": start_frame,
                     "num_frames": num_frames,
                     "audio_path": f"{subject_id}/{performance}/audio/audio.mp3",
-                    "input_camera": "cam_54",
+                    "input_camera": "cam_28",
                     "prompt": "a person speaking",
                 })
                 start_frame += stride
