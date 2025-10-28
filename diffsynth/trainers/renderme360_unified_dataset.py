@@ -30,6 +30,7 @@ class RenderMe360UnifiedDataset(torch.utils.data.Dataset):
     def __init__(self, base_path, metadata_path, repeat=1, cameras=None):
         self.base_path = base_path
         self.repeat = repeat
+        self.load_from_cache = False  # We always load from metadata CSV, not cache
 
         # Load metadata
         self.metadata = pd.read_csv(metadata_path)
