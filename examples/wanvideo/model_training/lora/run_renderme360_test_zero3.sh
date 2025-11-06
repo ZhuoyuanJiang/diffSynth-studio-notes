@@ -1,13 +1,13 @@
 #!/bin/bash
 #
-# RenderMe360 Training - Smoke Test (8 GPUs, 1 epoch, 100 samples)
-# Purpose: Quick validation of training pipeline before full run
+# RenderMe360 Training - ZeRO-3 Smoke Test (7-8 GPUs, 1 epoch, 100 samples)
+# Purpose: Test DeepSpeed ZeRO-3 parameter sharding for memory efficiency
 #
 
 set -e
 
 echo "========================================"
-echo "RenderMe360 Training - SMOKE TEST"
+echo "RenderMe360 Training - ZERO-3 TEST"
 echo "========================================"
 
 # Activate conda environment
@@ -32,7 +32,7 @@ echo ""
 # Server-specific paths (vllab15)
 DATASET_BASE="/ssd4/zhuoyuan/renderme360_4cam"
 METADATA_PATH="${DATASET_BASE}/metadata_single2multi.csv"
-OUTPUT_DIR="/ssd1/zhuoyuan/diffsynth_training/renderme360_test"
+OUTPUT_DIR="/ssd1/zhuoyuan/diffsynth_training/renderme360_test_zero3"
 
 # Verify dataset and metadata
 if [ ! -d "$DATASET_BASE" ]; then
@@ -69,11 +69,13 @@ echo "Configuration:"
 echo "  Dataset: $DATASET_BASE"
 echo "  Metadata: $METADATA_PATH"
 echo "  Output: $OUTPUT_DIR"
-echo "  GPUs: $NUM_FREE_GPUS (DeepSpeed ZeRO-2)"
+echo "  GPUs: $NUM_FREE_GPUS (DeepSpeed ZeRO-3 - Parameter Sharding)"
 echo "  Epochs: 1"
 echo "  Samples: First 100"
 echo ""
-read -p "Press Enter to start smoke test (Ctrl+C to cancel)..."
+echo "ZeRO-3 enables parameter sharding across GPUs for memory efficiency"
+echo ""
+read -p "Press Enter to start ZeRO-3 test (Ctrl+C to cancel)..."
 
 # Create test metadata with first 100 samples and adjust num_frames to 17
 TEST_METADATA="/tmp/renderme360_test_metadata.csv"
@@ -82,9 +84,9 @@ head -101 "$METADATA_PATH" > "$TEST_METADATA"  # Header + 100 rows
 sed -i 's/,81,/,17,/g' "$TEST_METADATA"
 echo "Created test metadata: $TEST_METADATA (100 samples, 17 frames)"
 
-# Run training with auto-detected GPUs (using DeepSpeed ZeRO-2 config)
+# Run training with auto-detected GPUs (using DeepSpeed ZeRO-3 config)
 accelerate launch \
-  --config_file examples/wanvideo/model_training/lora/accelerate_config_renderme360.yaml \
+  --config_file examples/wanvideo/model_training/lora/accelerate_config_renderme360_zero3.yaml \
   --num_processes $NUM_FREE_GPUS \
   examples/wanvideo/model_training/train_renderme360.py \
   --dataset_base_path "$DATASET_BASE" \
@@ -108,9 +110,8 @@ accelerate launch \
 
 echo ""
 echo "========================================"
-echo "Smoke test completed!"
+echo "ZeRO-3 test completed!"
 echo "Check output at: $OUTPUT_DIR"
 echo ""
-echo "If successful, run full training with:"
-echo "  bash examples/wanvideo/model_training/lora/run_renderme360_full.sh"
+echo "If successful, proceed with full training using ZeRO-3 config."
 echo "========================================"

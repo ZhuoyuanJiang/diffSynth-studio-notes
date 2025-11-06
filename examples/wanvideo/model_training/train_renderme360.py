@@ -16,6 +16,77 @@ from diffsynth.trainers.renderme360_unified_dataset import RenderMe360UnifiedDat
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
+# ============================================================================
+# MEMORY PROFILING UTILITIES
+# ============================================================================
+
+def print_gpu_memory_summary(stage_name, device_id=0):
+    """
+    Print GPU memory usage at a specific stage.
+
+    Args:
+        stage_name: Description of current stage
+        device_id: GPU device to query (default: 0)
+    """
+    if not torch.cuda.is_available():
+        print(f"[MEMORY] {stage_name}: CUDA not available")
+        return
+
+    torch.cuda.synchronize(device_id)
+    allocated = torch.cuda.memory_allocated(device_id) / 1024**3  # GB
+    reserved = torch.cuda.memory_reserved(device_id) / 1024**3    # GB
+    max_allocated = torch.cuda.max_memory_allocated(device_id) / 1024**3
+    total = torch.cuda.get_device_properties(device_id).total_memory / 1024**3
+
+    print(f"\n{'='*80}")
+    print(f"[MEMORY] {stage_name} (GPU {device_id})")
+    print(f"{'='*80}")
+    print(f"  Allocated:     {allocated:7.2f} GB  ({allocated/total*100:5.1f}%)")
+    print(f"  Reserved:      {reserved:7.2f} GB  ({reserved/total*100:5.1f}%)")
+    print(f"  Max Allocated: {max_allocated:7.2f} GB  ({max_allocated/total*100:5.1f}%)")
+    print(f"  Total GPU:     {total:7.2f} GB")
+    print(f"  Free (approx): {total - allocated:7.2f} GB")
+    print(f"{'='*80}\n")
+
+
+def print_model_component_sizes(pipe):
+    """
+    Print size of each pipeline component.
+
+    Returns:
+        Total model size in GB
+    """
+    print(f"\n{'='*80}")
+    print(f"[MODEL COMPONENT SIZES]")
+    print(f"{'='*80}")
+
+    components = {
+        'dit': pipe.dit,
+        'text_encoder': pipe.text_encoder,
+        'vae': pipe.vae,
+        'image_encoder': pipe.image_encoder,
+        'motion_controller': pipe.motion_controller,
+        'vace': pipe.vace,
+    }
+
+    total_params = 0
+    total_size_gb = 0
+
+    for name, module in components.items():
+        if module is not None:
+            num_params = sum(p.numel() for p in module.parameters())
+            # Assuming bfloat16 (2 bytes per param)
+            size_gb = (num_params * 2) / 1024**3
+            total_params += num_params
+            total_size_gb += size_gb
+            print(f"  {name:20s}: {num_params:>15,} params  ({size_gb:6.2f} GB)")
+
+    print(f"  {'-'*60}")
+    print(f"  {'TOTAL':20s}: {total_params:>15,} params  ({total_size_gb:6.2f} GB)")
+    print(f"{'='*80}\n")
+    return total_size_gb
+
+
 
 class WanRenderMe360TrainingModule(DiffusionTrainingModule):
     """
@@ -38,23 +109,29 @@ class WanRenderMe360TrainingModule(DiffusionTrainingModule):
         min_timestep_boundary=0.0,
     ):
         super().__init__()
+
         # Load models
+        print("[MEMORY PROFILING] Loading models...")
         model_configs = self.parse_model_configs(model_paths, model_id_with_origin_paths, enable_fp8_training=False)
         if audio_processor_config is not None:
             audio_processor_config = ModelConfig(model_id=audio_processor_config.split(":")[0], origin_file_pattern=audio_processor_config.split(":")[1])
         self.pipe = WanVideoPipeline.from_pretrained(torch_dtype=torch.bfloat16, device="cpu", model_configs=model_configs, audio_processor_config=audio_processor_config)
 
-        # Enable VRAM management for 48GB GPUs (layer-wise CPU offloading)
-        # Note: Cannot call enable_vram_management() here because pipe.device is "cpu" (DeepSpeed handles device placement)
-        # VRAM management will be enabled by DeepSpeed's model parallelism instead
-        # self.pipe.enable_vram_management()
+        # Profile model component sizes
+        print_model_component_sizes(self.pipe)
+
+        # Note: Cannot profile GPU memory here because models are on CPU (device="cpu")
+        # DeepSpeed will move them to GPU during initialization
 
         # Training mode
+        print("[MEMORY PROFILING] Setting up LoRA training...")
         self.switch_pipe_to_training_mode(
             self.pipe, trainable_models,
             lora_base_model, lora_target_modules, lora_rank, lora_checkpoint=lora_checkpoint,
             enable_fp8_training=False,
         )
+
+        print("[MEMORY PROFILING] Model setup complete. Waiting for DeepSpeed initialization...")
 
         # Store other configs
         self.use_gradient_checkpointing = use_gradient_checkpointing
