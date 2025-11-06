@@ -26,8 +26,8 @@ def main():
     print("=" * 80)
 
     # Configuration
-    LOCAL_MODEL_PATH = "/ssd1/zhuoyuan/diffsynth_models/models"
-    BASE_PATH = "/ssd4/zhuoyuan/renderme360_4cam"
+    LOCAL_MODEL_PATH = "/ssd2/zhuoyuan/diffsynth_models/models"
+    BASE_PATH = "/ssd2/zhuoyuan/renderme360_4cam"
     METADATA_PATH = f"{BASE_PATH}/metadata_single2multi.csv"
     DEVICE = "cuda:0"
 

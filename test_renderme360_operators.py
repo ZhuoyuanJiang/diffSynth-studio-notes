@@ -9,7 +9,7 @@ from pathlib import Path
 from diffsynth.trainers.renderme360_unified_dataset import RenderMe360UnifiedDataset
 
 # Configuration
-BASE_PATH = "/ssd4/zhuoyuan/renderme360_4cam"
+BASE_PATH = "/ssd2/zhuoyuan/renderme360_4cam"
 METADATA_CSV = f"{BASE_PATH}/metadata_single2multi.csv"
 
 print("=" * 80)

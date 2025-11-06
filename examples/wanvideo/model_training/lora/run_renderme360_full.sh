@@ -17,10 +17,10 @@ echo "========================================"
 # Activate conda environment
 source ~/miniconda3/bin/activate diffsynth-s2v
 
-# Server-specific paths (vllab15)
-DATASET_BASE="/ssd4/zhuoyuan/renderme360_4cam"
+# Server-specific paths (vllab9)
+DATASET_BASE="/ssd2/zhuoyuan/renderme360_4cam"
 METADATA_PATH="${DATASET_BASE}/metadata_single2multi.csv"
-OUTPUT_DIR="/ssd1/zhuoyuan/diffsynth_training/renderme360_lora"
+OUTPUT_DIR="/ssd2/zhuoyuan/diffsynth_training/renderme360_lora"
 
 # Verify dataset and metadata
 if [ ! -d "$DATASET_BASE" ]; then
